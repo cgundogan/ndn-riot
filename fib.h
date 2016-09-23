@@ -30,18 +30,20 @@
 extern "C" {
 #endif
 
+typedef struct ndn_fib_face_entry {
+    struct ndn_fib_face_entry *next;
+    ndn_face_entry *face;
+} ndn_fib_face_entry_t;
+
 /**
  * @brief  Type to represent the FIB entry.
  */
 typedef struct ndn_fib_entry {
-    struct ndn_fib_entry *prev;
-    struct ndn_fib_entry *next;
     ndn_shared_block_t* prefix;
     int plen;
 
-    // List of out-going faces
-    _face_list_entry_t *face_list;
-    int face_list_size;
+    /* List of out-going faces */
+    ndn_fib_face_entry_t *fib_faces;
 } ndn_fib_entry_t;
 
 
@@ -76,7 +78,8 @@ ndn_fib_entry_t* ndn_fib_lookup(ndn_block_t* name);
  *
  * @param[in]   face_id   PID of the face to be removed.
  */
-void ndn_fib_remove_by_face(kernel_pid_t face_id);
+void ndn_fib_remove_face(ndn_face_entry_t *face);
+TODO implement this to remove face pointers from fibs
 
 /**
  * @brief    Initializes the FIB table.
