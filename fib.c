@@ -129,13 +129,8 @@ int ndn_fib_add(ndn_shared_block_t* prefix, ndn_face_entry_t *face)
         ndn_fib_face_entry_t *tmp;
         LL_FOREACH(max->fib_faces, tmp) {
             if (!_fib_entry_add_face(entry, tmp)) {
-                ndn_fib_face_entry_t *elt, *tmp;
-                LL_FOREACH_SAFE(entry->fib_faces, elt, tmp) {
-                    LL_DELETE(entry->fib_faces, elt);
-                    memset(elt, 0, sizeof(*elt));
-                }
-                ndn_shared_block_release(entry->prefix);
-                memset(entry, 0, sizeof(*entry));
+                /* cannot inherit all faces from parent => delete fib entry */
+                ndn_fib_remove(entry);
                 return -1;
             }
         }
@@ -150,7 +145,7 @@ ndn_fib_entry_t* ndn_fib_lookup(ndn_block_t* name)
 {
     int max_plen = -1;
     ndn_fib_entry_t *entry, *max = NULL;
-    for (int i = 0; i < NDN_FIB_ENTRIS_NUMOF; ++i) { {
+    for (int i = 0; i < NDN_FIB_ENTRIES_NUMOF; ++i) { {
         int r =
             ndn_name_compare_block(&_fib[i].prefix->block, name);
         if (r == 0 || r == -2) {
@@ -167,6 +162,36 @@ ndn_fib_entry_t* ndn_fib_lookup(ndn_block_t* name)
 void ndn_fib_init(void)
 {
     memset(&_fib, 0, sizeof(_fib));
+}
+
+void ndn_fib_remove(ndn_fib_entry_t *fib_entry)
+{
+    ndn_fib_face_entry_t *elt, *tmp;
+    LL_FOREACH_SAFE(fib_entry->fib_faces, elt, tmp) {
+        /* remove all faces from gib entry */
+        LL_DELETE(fib_entry->fib_faces, elt);
+        memset(elt, 0, sizeof(*elt));
+    }
+    /* remove fib entry */
+    ndn_shared_block_release(fib_entry->prefix);
+    memset(fib_entry, 0, sizeof(*fib_entry);
+}
+
+void ndn_fib_remove_face(ndn_face_entry_t *face)
+{
+    ndn_fib_face_entry_t *elt, *tmp;
+    for (int i = 0; i < NDN_FIB_ENTRIES_NUMOF; ++i) {
+        LL_FOREACH_SAFE(_fib[i].fib_faces, elt, tmp) {
+            /* remove face from fib entry */
+            if (elt->face == face) {
+                LL_DELETE(_fib[i].fib_faces, elt);
+                /* remove fib entry if no other face is available */
+                if (_fib[i].fib_faces == NULL) {
+                    ndn_fib_remove(&_fib[i]);
+                }
+            }
+        }
+    }
 }
 
 /** @} */

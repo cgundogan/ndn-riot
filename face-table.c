@@ -16,6 +16,7 @@
  */
 
 #include "face-table.h"
+#include "fib.h"
 
 #include <debug.h>
 
@@ -78,6 +79,7 @@ int ndn_face_table_remove(kernel_pid_t id)
     if (entry) {
         DEBUG("ndn: remove face entry (id=%" PRIkernel_pid ", type=%d)\n",
               entry->id, entry->type);
+        ndn_fib_remove_face(entry);
         memset(entry, 0, sizeof(*entry));
         entry->id = KERNEL_PID_UNDEF;
         return 0;

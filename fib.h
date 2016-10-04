@@ -74,12 +74,18 @@ int ndn_fib_add(ndn_shared_block_t* prefix, kernel_pid_t face_id, int face_type)
 ndn_fib_entry_t* ndn_fib_lookup(ndn_block_t* name);
 
 /**
+ * @brief   Removes the FIB entry
+ *
+ * @param[in]   fib_entry   FIB entry to be removed.
+ */
+void ndn_fib_remove(ndn_fib_entry_t *fib_entry);
+
+/**
  * @brief   Removes the face from all FIB entries.
  *
- * @param[in]   face_id   PID of the face to be removed.
+ * @param[in]   face    Face to be removed.
  */
 void ndn_fib_remove_face(ndn_face_entry_t *face);
-TODO implement this to remove face pointers from fibs
 
 /**
  * @brief    Initializes the FIB table.
