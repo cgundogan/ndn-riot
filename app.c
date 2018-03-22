@@ -613,7 +613,7 @@ int ndn_app_add_strategy(ndn_shared_block_t* prefix,
     msg_send_receive(&op, &reply, ndn_pid);
     if (reply.content.value != 0) {
         DEBUG("ndn_app: cannot add forwarding strategy (pid=%"
-              PRIkernel_pid ")\n", handle->id);
+              PRIkernel_pid ")\n", ndn_pid);
         return -1;
     }
     return 0;
